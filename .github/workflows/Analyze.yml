@@ -1,0 +1,21 @@
+name: Analyze code statically
+"on": pull_request
+schedule:
+    - cron: '5 * * * *'
+jobs:
+  brakeman:
+    runs-on: ubuntu-latest
+    env:
+      ANALYZER: '@moneyforward/code-review-action-brakeman-plugin'
+      ANALYZER_VERSION: '~0'
+    steps:
+      - uses: actions/checkout@v2
+      - run: sudo npm i -g --no-save "${ANALYZER}@${ANALYZER_VERSION}"
+      - id: node-env
+        run: echo "::set-output name=path::$(npm root -g)"
+      - name: Analyze code statically
+        uses: moneyforward/code-review-action@v0
+        env:
+          NODE_PATH: ${{ steps.node-env.outputs.path }}
+        with:
+          analyzer: ${{ env.ANALYZER }}
